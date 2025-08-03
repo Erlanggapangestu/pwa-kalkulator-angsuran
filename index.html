@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Angsuran Motor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4461ff">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<style>
+/* === CSS (ambil dari kode kamu sebelumnya) === */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f0f2f5, #e3e6ea);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 15px;
+    box-sizing: border-box;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+.dark-mode {
+    background: linear-gradient(135deg, #1b1d23, #121316);
+    color: #e0e0e0;
+}
+/* ... lanjutkan dengan CSS dari kode kamu sebelumnya ... */
+</style>
+</head>
+<body>
+<div class="toggle-switch" id="modeToggle">
+    <div class="toggle-circle"></div>
+</div>
+
+<div class="wrapper">
+    <div class="container">
+        <h2>Kalkulator Angsuran</h2>
+        <label>Harga OTR</label>
+        <input type="text" id="harga" inputmode="numeric" pattern="[0-9]*"
+               oninput="formatInputRupiah(this); updateAll();">
+        <label>Uang Muka (DP)</label>
+        <input type="text" id="dp" inputmode="numeric" pattern="[0-9]*"
+               oninput="formatInputRupiah(this); updateAll();">
+        <label>Tenor (Bulan)</label>
+        <input type="number" id="tenor" value="35" oninput="updateAll();">
+        <label>Biaya Administrasi</label>
+        <input type="text" id="admin1" value="Rp 700.000" readonly>
+        <label>Rate</label>
+        <input type="text" id="admin2" value="Rp 350.000" readonly>
+        <label>Skim</label>
+        <input type="text" id="admin3" value="Rp 0">
+        <label>Rate Bunga</label>
+        <input type="text" id="rate" value="26%" oninput="formatInputPersen(this); updateAll();">
+        <label>Harga Pokok</label>
+        <input type="text" id="pokok" value="Rp 0" readonly>
+        <button onclick="hitung()">Hitung Cicilan</button>
+        <div class="result" id="hasil"></div>
+    </div>
+
+    <div class="simulasi-table">
+        <h2>Simulasi Cicilan</h2>
+        <table>
+            <thead>
+                <tr><th>Tenor</th><th>Cicilan Per Bulan</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>11 Bulan</td><td id="sim11">Rp 0</td></tr>
+                <tr><td>23 Bulan</td><td id="sim23">Rp 0</td></tr>
+                <tr><td>35 Bulan</td><td id="sim35">Rp 0</td></tr>
+                <tr><td>47 Bulan</td><td id="sim47">Rp 0</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+/* === JS dari kode kamu sebelumnya === */
+const rateAsuransi = {3:0.2016,6:0.4008,12:0.8040,18:1.1460,24:1.4880,30:1.7892,36:2.0904,48:2.6136,60:8.6640};
+const biayaAdmAsuransi = 50000;
+const admin1 = 700000;
+const admin2 = 350000;
+
+function formatInputRupiah(input){
+    let v = input.value.replace(/[^,\d]/g, "");
+    if (!v) { input.value = ""; return; }
+    input.value = "Rp " + parseInt(v, 10).toLocaleString("id-ID");
+}
+function formatInputPersen(input){
+    let v = input.value.replace(/[^0-9.]/g, "");
+    if (!v) { input.value = ""; return; }
+    input.value = v + "%";
+}
+function getNumeric(id){
+    return parseInt((document.getElementById(id).value || "").replace(/[^,\d]/g, "")) || 0;
+}
+function getPercent(id){
+    return parseFloat((document.getElementById(id).value || "").replace(/[^0-9.]/g, "")) || 0;
+}
+function formatRupiah(n){
+    return "Rp " + n.toLocaleString("id-ID");
+}
+function hitungCicilan(harga, dp, rate, n){
+    const tenorNearest = n<=3?3:n<=6?6:n<=12?12:n<=18?18:n<=24?24:n<=30?30:n<=36?36:n<=48?48:60;
+    const asuransi = Math.ceil(((harga * (rateAsuransi[tenorNearest] / 100)) + biayaAdmAsuransi) / 1000) * 1000;
+    let skim = 0;
+    if (n >= 23 && n <= 34) skim = 200000;
+    else if (n >= 35 && n <= 47) skim = 500000;
+    const totalAdmin = admin1 + admin2 + skim;
+    const pinjaman = harga - dp + totalAdmin + asuransi;
+    const r = getPercent("rate") / 100 / 12;
+    const pmt = (r * pinjaman) / (1 - Math.pow(1 + r, -n));
+    return Math.ceil(pmt / 1000) * 1000;
+}
+function updateAll(){
+    const harga = getNumeric('harga');
+    const dp = getNumeric('dp');
+    const tenor = parseInt(document.getElementById('tenor').value) || 0;
+    let skim = 0;
+    if (tenor >= 23 && tenor <= 34) skim = 200000;
+    else if (tenor >= 35 && tenor <= 47) skim = 500000;
+    document.getElementById('admin3').value = formatRupiah(skim);
+    const totalAdmin = admin1 + admin2 + skim;
+    document.getElementById('admin1').value = formatRupiah(admin1);
+    document.getElementById('admin2').value = formatRupiah(admin2);
+    const tenorNearest = tenor<=3?3:tenor<=6?6:tenor<=12?12:tenor<=18?18:tenor<=24?24:tenor<=30?30:tenor<=36?36:tenor<=48?48:60;
+    const asuransi = Math.ceil(((harga * (rateAsuransi[tenorNearest] / 100)) + biayaAdmAsuransi) / 1000) * 1000;
+    const pokok = harga - dp + totalAdmin + asuransi;
+    document.getElementById('pokok').value = formatRupiah(pokok);
+    if (!harga || !dp) {
+        [11, 23, 35, 47].forEach(t => document.getElementById('sim' + t).textContent = "Rp 0");
+        return;
+    }
+    [11, 23, 35, 47].forEach(t => {
+        document.getElementById('sim' + t).textContent = formatRupiah(hitungCicilan(harga, dp, getPercent('rate'), t));
+    });
+}
+function hitung(){
+    const harga = getNumeric('harga');
+    const dp = getNumeric('dp');
+    const tenor = parseInt(document.getElementById('tenor').value) || 0;
+    const hasil = document.getElementById('hasil');
+
+    if (!harga || !dp || !tenor) {
+        hasil.textContent = "Periksa input.";
+        hasil.classList.add('error');
+        return;
+    }
+    if (dp >= harga) {
+        hasil.textContent = "DP tidak boleh lebih besar atau sama dengan Harga OTR!";
+        hasil.classList.add('error');
+        return;
+    }
+    hasil.classList.remove('error');
+    const cicilan = hitungCicilan(harga, dp, getPercent('rate'), tenor);
+    hasil.textContent = "Cicilan " + tenor + " bulan: " + formatRupiah(cicilan);
+    updateAll();
+}
+
+// Dark Mode + LocalStorage
+const toggle = document.getElementById('modeToggle');
+toggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    toggle.classList.toggle('active');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+});
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    toggle.classList.add('active');
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.body.classList.add('dark-mode');
+    toggle.classList.add('active');
+}
+
+// PWA Service Worker Register
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker terdaftar'))
+    .catch(err => console.error('SW gagal:', err));
+}
+</script>
+</body>
+</html>
