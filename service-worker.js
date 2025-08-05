@@ -2,6 +2,8 @@ const CACHE_NAME = "kalkulator-cache-v2";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
+  "./style.css",
+  "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
@@ -35,5 +37,3 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-
-
