@@ -7,160 +7,7 @@
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#4461ff">
 <link rel="icon" href="./icons/icon-192.png" type="image/png">
-<style>
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #f0f2f5, #e3e6ea);
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 15px;
-    box-sizing: border-box;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-.dark-mode {
-    background: linear-gradient(135deg, #1b1d23, #121316);
-    color: #e0e0e0;
-}
-.wrapper {
-    max-width: 500px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-.container, .simulasi-table {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: background 0.3s ease, color 0.3s ease;
-}
-.dark-mode .container,
-.dark-mode .simulasi-table {
-    background: #1f2127;
-    color: #e0e0e0;
-}
-h2 {
-    text-align: center;
-    color: #1a2a7a;
-    margin-bottom: 12px;
-    font-size: 18px;
-}
-.dark-mode h2 { color: #8ab4ff; }
-.container label {
-    display: block;
-    margin: 6px 0 2px;
-    font-size: 13px;
-    font-weight: 600;
-}
-.container input {
-    width: 100%;
-    padding: 7px;
-    font-size: 14px;
-    border: 1px solid #bbb;
-    border-radius: 5px;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-.dark-mode input {
-    background: #2a2c34;
-    color: #e0e0e0;
-    border: 1px solid #555;
-}
-input[readonly] {
-    background: #f5f5f5;
-    color: #666;
-}
-.dark-mode input[readonly] {
-    background: #2f323a;
-    color: #aaa;
-}
-button {
-    background: #4461ff;
-    color: #fff;
-    border: none;
-    padding: 8px;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 5px;
-    width: 100%;
-}
-button:hover { background: #3147d1; }
-.result {
-    text-align: center;
-    font-size: 15px;
-    margin-top: 8px;
-    font-weight: bold;
-}
-.result.error { color: red; }
-.simulasi-table {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: auto;
-}
-.simulasi-table table {
-    width: auto;
-    min-width: 260px;
-    border-collapse: collapse;
-    margin: 0 auto;
-    font-size: 13px;
-}
-.simulasi-table th, .simulasi-table td {
-    border: 1px solid #ccc;
-    padding: 6px 12px;
-    text-align: center;
-}
-.simulasi-table th {
-    background: #1a2a7a;
-    color: #fff;
-}
-.dark-mode .simulasi-table th {
-    background: #3a3d45;
-}
-.dark-mode .simulasi-table td {
-    background: #2b2d34;
-    color: #ddd;
-}
-.toggle-switch {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    width: 50px;
-    height: 26px;
-    background: #ccc;
-    border-radius: 13px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-.toggle-circle {
-    width: 22px;
-    height: 22px;
-    background: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    transition: left 0.3s, background 0.3s;
-}
-.toggle-switch.active {
-    background: #5c7cfa;
-}
-.toggle-switch.active .toggle-circle {
-    left: 26px;
-    background: #fff;
-}
-@media (max-width: 480px) {
-    .wrapper { max-width: 100%; }
-    .simulasi-table table { min-width: 240px; }
-}
-</style>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <div class="toggle-switch" id="modeToggle">
@@ -183,12 +30,12 @@ button:hover { background: #3147d1; }
         <label>Rate</label>
         <input type="text" id="admin2" value="Rp 350.000" readonly>
         <label>Skim</label>
-        <input type="text" id="admin3" value="Rp 0">
+        <input type="text" id="admin3" value="Rp 0" oninput="formatInputRupiah(this); saveSkim(this); updateAll();">
         <label>Rate Bunga</label>
-        <input type="text" id="rate" value="26%" oninput="formatInputPersen(this); updateAll();">
+        <input type="text" id="rate" value="0%" oninput="saveRate(this); updateAll();">
         <label>Harga Pokok</label>
         <input type="text" id="pokok" value="Rp 0" readonly>
-        <button onclick="hitung()">Hitung Cicilan</button>
+        <button id="btnHitung" onclick="hitung()" disabled>Hitung Cicilan</button>
         <div class="result" id="hasil"></div>
     </div>
 
@@ -208,103 +55,8 @@ button:hover { background: #3147d1; }
     </div>
 </div>
 
+<script src="./app.js"></script>
 <script>
-const rateAsuransi = {3:0.2016,6:0.4008,12:0.8040,18:1.1460,24:1.4880,30:1.7892,36:2.0904,48:2.6136,60:8.6640};
-const biayaAdmAsuransi = 50000;
-const admin1 = 700000;
-const admin2 = 350000;
-
-function formatInputRupiah(input){
-    let v = input.value.replace(/[^,\d]/g, "");
-    if (!v) { input.value = ""; return; }
-    input.value = "Rp " + parseInt(v, 10).toLocaleString("id-ID");
-}
-function formatInputPersen(input){
-    let v = input.value.replace(/[^0-9.]/g, "");
-    if (!v) { input.value = ""; return; }
-    input.value = v + "%";
-}
-function getNumeric(id){
-    return parseInt((document.getElementById(id).value || "").replace(/[^,\d]/g, "")) || 0;
-}
-function getPercent(id){
-    return parseFloat((document.getElementById(id).value || "").replace(/[^0-9.]/g, "")) || 0;
-}
-function formatRupiah(n){
-    return "Rp " + n.toLocaleString("id-ID");
-}
-function hitungCicilan(harga, dp, rate, n){
-    const tenorNearest = n<=3?3:n<=6?6:n<=12?12:n<=18?18:n<=24?24:n<=30?30:n<=36?36:n<=48?48:60;
-    const asuransi = Math.ceil(((harga * (rateAsuransi[tenorNearest] / 100)) + biayaAdmAsuransi) / 1000) * 1000;
-    let skim = 0;
-    if (n >= 23 && n <= 34) skim = 200000;
-    else if (n >= 35 && n <= 47) skim = 500000;
-    const totalAdmin = admin1 + admin2 + skim;
-    const pinjaman = harga - dp + totalAdmin + asuransi;
-    const r = getPercent("rate") / 100 / 12;
-    const pmt = (r * pinjaman) / (1 - Math.pow(1 + r, -n));
-    return Math.ceil(pmt / 1000) * 1000;
-}
-function updateAll(){
-    const harga = getNumeric('harga');
-    const dp = getNumeric('dp');
-    const tenor = parseInt(document.getElementById('tenor').value) || 0;
-    let skim = 0;
-    if (tenor >= 23 && tenor <= 34) skim = 200000;
-    else if (tenor >= 35 && tenor <= 47) skim = 500000;
-    document.getElementById('admin3').value = formatRupiah(skim);
-    const totalAdmin = admin1 + admin2 + skim;
-    document.getElementById('admin1').value = formatRupiah(admin1);
-    document.getElementById('admin2').value = formatRupiah(admin2);
-    const tenorNearest = tenor<=3?3:tenor<=6?6:tenor<=12?12:tenor<=18?18:tenor<=24?24:tenor<=30?30:tenor<=36?36:tenor<=48?48:60;
-    const asuransi = Math.ceil(((harga * (rateAsuransi[tenorNearest] / 100)) + biayaAdmAsuransi) / 1000) * 1000;
-    const pokok = harga - dp + totalAdmin + asuransi;
-    document.getElementById('pokok').value = formatRupiah(pokok);
-    if (!harga || !dp) {
-        [11, 23, 35, 47].forEach(t => document.getElementById('sim' + t).textContent = "Rp 0");
-        return;
-    }
-    [11, 23, 35, 47].forEach(t => {
-        document.getElementById('sim' + t).textContent = formatRupiah(hitungCicilan(harga, dp, getPercent('rate'), t));
-    });
-}
-function hitung(){
-    const harga = getNumeric('harga');
-    const dp = getNumeric('dp');
-    const tenor = parseInt(document.getElementById('tenor').value) || 0;
-    const hasil = document.getElementById('hasil');
-
-    if (!harga || !dp || !tenor) {
-        hasil.textContent = "Periksa input.";
-        hasil.classList.add('error');
-        return;
-    }
-    if (dp >= harga) {
-        hasil.textContent = "DP tidak boleh lebih besar atau sama dengan Harga OTR!";
-        hasil.classList.add('error');
-        return;
-    }
-    hasil.classList.remove('error');
-    const cicilan = hitungCicilan(harga, dp, getPercent('rate'), tenor);
-    hasil.textContent = "Cicilan " + tenor + " bulan: " + formatRupiah(cicilan);
-    updateAll();
-}
-
-// Dark Mode + LocalStorage
-const toggle = document.getElementById('modeToggle');
-toggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    toggle.classList.toggle('active');
-    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-});
-if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark-mode');
-    toggle.classList.add('active');
-} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.body.classList.add('dark-mode');
-    toggle.classList.add('active');
-}
-
 // PWA Service Worker Register + Auto Update
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js').then(reg => {
