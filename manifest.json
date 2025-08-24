@@ -1,11 +1,10 @@
 {
   "name": "Kalkulator Angsuran Motor",
-  "short_name": "Angsuran Motor",
-  "start_url": "./index.html",
+  "short_name": "Kalkulator Motor",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4461ff",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icons/icon-192.png",
