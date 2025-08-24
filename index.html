@@ -4,99 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kalkulator Angsuran Motor</title>
-
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4461ff">
-
-  <!-- Icon -->
-  <link rel="icon" href="./icons/icon-192.png" type="image/png">
-
-  <!-- Style -->
-  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <!-- Dark Mode Toggle -->
-  <div class="toggle-switch" id="modeToggle">
-    <div class="toggle-circle"></div>
-  </div>
-
   <div class="wrapper">
-    <!-- Kalkulator Angsuran -->
     <div class="container">
-      <h2>Kalkulator Angsuran</h2>
 
-      <label>Harga OTR</label>
-      <input type="text" id="harga" inputmode="numeric" pattern="[0-9]*"
-             oninput="formatInputRupiah(this); updateAll();">
+      <!-- Dark Mode Toggle -->
+      <div class="dark-mode-toggle">
+        <label class="switch">
+          <input type="checkbox" id="darkModeSwitch">
+          <span class="slider"></span>
+        </label>
+      </div>
 
-      <label>Uang Muka (DP)</label>
-      <input type="text" id="dp" inputmode="numeric" pattern="[0-9]*"
-             oninput="formatInputRupiah(this); updateAll();">
+      <h1>Kalkulator Angsuran Motor</h1>
 
-      <label>Tenor (Bulan)</label>
-      <input type="number" id="tenor" value="35" oninput="updateAll();">
+      <!-- Form Input -->
+      <form id="calcForm">
+        <label for="harga">Harga OTR (Rp)</label>
+        <input type="number" id="harga" required>
 
-      <label>Biaya Administrasi</label>
-      <input type="text" id="admin1" value="Rp 700.000" readonly>
+        <label for="dp">Uang Muka / DP (Rp)</label>
+        <input type="number" id="dp" required>
 
-      <label>Rate</label>
-      <input type="text" id="admin2" value="Rp 350.000" readonly>
+        <label for="tenor">Tenor (bulan)</label>
+        <select id="tenor" required>
+          <option value="" disabled selected>Pilih tenor</option>
+          <option value="12">12 Bulan</option>
+          <option value="24">24 Bulan</option>
+          <option value="35">35 Bulan</option>
+        </select>
 
-      <label>Skim</label>
-      <input type="text" id="admin3" value="Rp 0"
-             oninput="formatInputRupiah(this); saveSkim(this); updateAll();">
+        <label for="bunga">Bunga (%)</label>
+        <input type="number" id="bunga" step="0.1" value="1.7" required>
 
-      <label>Rate Bunga</label>
-      <input type="text" id="rate" value="0%"
-             oninput="saveRate(this); updateAll();">
+        <button type="submit">Hitung Angsuran</button>
+      </form>
 
-      <label>Harga Pokok</label>
-      <input type="text" id="pokok" value="Rp 0" readonly>
+      <!-- Hasil -->
+      <div class="result" id="result">Masukkan data untuk menghitung angsuran.</div>
 
-      <button id="btnHitung" onclick="hitung()" disabled>Hitung Cicilan</button>
-
-      <div class="result" id="hasil"></div>
-    </div>
-
-    <!-- Simulasi Cicilan -->
-    <div class="simulasi-table">
-      <h2>Simulasi Cicilan</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Tenor</th>
-            <th>Cicilan Per Bulan</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>11 Bulan</td><td id="sim11">Rp 0</td></tr>
-          <tr><td>23 Bulan</td><td id="sim23">Rp 0</td></tr>
-          <tr><td>35 Bulan</td><td id="sim35">Rp 0</td></tr>
-          <tr><td>47 Bulan</td><td id="sim47">Rp 0</td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
-  <!-- Script -->
-  <script src="./app.js"></script>
-  <script>
-    // PWA Service Worker Register + Auto Update
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js').then(reg => {
-        reg.onupdatefound = () => {
-          const newSW = reg.installing;
-          newSW.onstatechange = () => {
-            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              if (confirm('Versi baru tersedia. Muat ulang?')) {
-                window.location.reload();
-              }
-            }
-          };
-        };
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
