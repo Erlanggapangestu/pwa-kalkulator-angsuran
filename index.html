@@ -1,77 +1,102 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulator Angsuran Motor</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#4461ff">
-<link rel="icon" href="./icons/icon-192.png" type="image/png">
-<link rel="stylesheet" href="./style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Angsuran Motor</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#4461ff">
+
+  <!-- Icon -->
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+
+  <!-- Style -->
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<div class="toggle-switch" id="modeToggle">
+  <!-- Dark Mode Toggle -->
+  <div class="toggle-switch" id="modeToggle">
     <div class="toggle-circle"></div>
-</div>
+  </div>
 
-<div class="wrapper">
+  <div class="wrapper">
+    <!-- Kalkulator Angsuran -->
     <div class="container">
-        <h2>Kalkulator Angsuran</h2>
-        <label>Harga OTR</label>
-        <input type="text" id="harga" inputmode="numeric" pattern="[0-9]*"
-               oninput="formatInputRupiah(this); updateAll();">
-        <label>Uang Muka (DP)</label>
-        <input type="text" id="dp" inputmode="numeric" pattern="[0-9]*"
-               oninput="formatInputRupiah(this); updateAll();">
-        <label>Tenor (Bulan)</label>
-        <input type="number" id="tenor" value="35" oninput="updateAll();">
-        <label>Biaya Administrasi</label>
-        <input type="text" id="admin1" value="Rp 700.000" readonly>
-        <label>Rate</label>
-        <input type="text" id="admin2" value="Rp 350.000" readonly>
-        <label>Skim</label>
-        <input type="text" id="admin3" value="Rp 0" oninput="formatInputRupiah(this); saveSkim(this); updateAll();">
-        <label>Rate Bunga</label>
-        <input type="text" id="rate" value="0%" oninput="saveRate(this); updateAll();">
-        <label>Harga Pokok</label>
-        <input type="text" id="pokok" value="Rp 0" readonly>
-        <button id="btnHitung" onclick="hitung()" disabled>Hitung Cicilan</button>
-        <div class="result" id="hasil"></div>
+      <h2>Kalkulator Angsuran</h2>
+
+      <label>Harga OTR</label>
+      <input type="text" id="harga" inputmode="numeric" pattern="[0-9]*"
+             oninput="formatInputRupiah(this); updateAll();">
+
+      <label>Uang Muka (DP)</label>
+      <input type="text" id="dp" inputmode="numeric" pattern="[0-9]*"
+             oninput="formatInputRupiah(this); updateAll();">
+
+      <label>Tenor (Bulan)</label>
+      <input type="number" id="tenor" value="35" oninput="updateAll();">
+
+      <label>Biaya Administrasi</label>
+      <input type="text" id="admin1" value="Rp 700.000" readonly>
+
+      <label>Rate</label>
+      <input type="text" id="admin2" value="Rp 350.000" readonly>
+
+      <label>Skim</label>
+      <input type="text" id="admin3" value="Rp 0"
+             oninput="formatInputRupiah(this); saveSkim(this); updateAll();">
+
+      <label>Rate Bunga</label>
+      <input type="text" id="rate" value="0%"
+             oninput="saveRate(this); updateAll();">
+
+      <label>Harga Pokok</label>
+      <input type="text" id="pokok" value="Rp 0" readonly>
+
+      <button id="btnHitung" onclick="hitung()" disabled>Hitung Cicilan</button>
+
+      <div class="result" id="hasil"></div>
     </div>
 
+    <!-- Simulasi Cicilan -->
     <div class="simulasi-table">
-        <h2>Simulasi Cicilan</h2>
-        <table>
-            <thead>
-                <tr><th>Tenor</th><th>Cicilan Per Bulan</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>11 Bulan</td><td id="sim11">Rp 0</td></tr>
-                <tr><td>23 Bulan</td><td id="sim23">Rp 0</td></tr>
-                <tr><td>35 Bulan</td><td id="sim35">Rp 0</td></tr>
-                <tr><td>47 Bulan</td><td id="sim47">Rp 0</td></tr>
-            </tbody>
-        </table>
+      <h2>Simulasi Cicilan</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tenor</th>
+            <th>Cicilan Per Bulan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>11 Bulan</td><td id="sim11">Rp 0</td></tr>
+          <tr><td>23 Bulan</td><td id="sim23">Rp 0</td></tr>
+          <tr><td>35 Bulan</td><td id="sim35">Rp 0</td></tr>
+          <tr><td>47 Bulan</td><td id="sim47">Rp 0</td></tr>
+        </tbody>
+      </table>
     </div>
-</div>
+  </div>
 
-<script src="./app.js"></script>
-<script>
-// PWA Service Worker Register + Auto Update
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js').then(reg => {
+  <!-- Script -->
+  <script src="./app.js"></script>
+  <script>
+    // PWA Service Worker Register + Auto Update
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').then(reg => {
         reg.onupdatefound = () => {
-            const newSW = reg.installing;
-            newSW.onstatechange = () => {
-                if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                    if (confirm('Versi baru tersedia. Muat ulang?')) {
-                        window.location.reload();
-                    }
-                }
-            };
+          const newSW = reg.installing;
+          newSW.onstatechange = () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              if (confirm('Versi baru tersedia. Muat ulang?')) {
+                window.location.reload();
+              }
+            }
+          };
         };
-    });
-}
-</script>
+      });
+    }
+  </script>
 </body>
 </html>
