@@ -1,3 +1,4 @@
+/* ===== Base Style ===== */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #f0f2f5, #e3e6ea);
@@ -11,10 +12,14 @@ body {
     box-sizing: border-box;
     transition: background 0.3s ease, color 0.3s ease;
 }
+
+/* Dark Mode */
 .dark-mode {
     background: linear-gradient(135deg, #1b1d23, #121316);
     color: #e0e0e0;
 }
+
+/* Responsif wrapper */
 .wrapper {
     max-width: 500px;
     width: 100%;
@@ -22,18 +27,26 @@ body {
     flex-direction: column;
     gap: 15px;
 }
+
+/* Container & Card */
 .container, .simulasi-table {
     background: #fff;
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.2s;
 }
+.container:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
 .dark-mode .container,
 .dark-mode .simulasi-table {
     background: #1f2127;
     color: #e0e0e0;
 }
+
+/* Judul */
 h2 {
     text-align: center;
     color: #1a2a7a;
@@ -41,22 +54,32 @@ h2 {
     font-size: 18px;
 }
 .dark-mode h2 { color: #8ab4ff; }
+
+/* Label */
 .container label {
     display: block;
-    margin: 6px 0 2px;
+    margin: 6px 0 4px;
     font-size: 13px;
     font-weight: 600;
 }
+
+/* Input */
 .container input {
     width: 100%;
-    padding: 7px;
+    padding: 8px;
     font-size: 14px;
     border: 1px solid #bbb;
-    border-radius: 5px;
+    border-radius: 6px;
     box-sizing: border-box;
     margin-bottom: 10px;
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease, border 0.3s;
 }
+.container input:focus {
+    outline: none;
+    border-color: #4461ff;
+    box-shadow: 0 0 0 2px rgba(68,97,255,0.2);
+}
+
 .dark-mode input {
     background: #2a2c34;
     color: #e0e0e0;
@@ -70,23 +93,33 @@ input[readonly] {
     background: #2f323a;
     color: #aaa;
 }
+
+/* Button */
 button {
     background: #4461ff;
     color: #fff;
     border: none;
-    padding: 8px;
-    border-radius: 5px;
+    padding: 9px;
+    border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
     margin-top: 5px;
     width: 100%;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.1s;
 }
 button:disabled {
     background: #aaa;
     cursor: not-allowed;
 }
-button:hover:not(:disabled) { background: #3147d1; }
+button:hover:not(:disabled) { 
+    background: #3147d1; 
+    transform: translateY(-1px);
+}
+button:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+/* Hasil */
 .result {
     text-align: center;
     font-size: 15px;
@@ -94,6 +127,8 @@ button:hover:not(:disabled) { background: #3147d1; }
     font-weight: bold;
 }
 .result.error { color: red; }
+
+/* ===== Simulasi Table ===== */
 .simulasi-table {
     display: flex;
     flex-direction: column;
@@ -123,6 +158,8 @@ button:hover:not(:disabled) { background: #3147d1; }
     background: #2b2d34;
     color: #ddd;
 }
+
+/* ===== Toggle Dark Mode ===== */
 .toggle-switch {
     position: fixed;
     top: 12px;
@@ -151,7 +188,17 @@ button:hover:not(:disabled) { background: #3147d1; }
     left: 26px;
     background: #fff;
 }
+
+/* ===== Responsif ===== */
 @media (max-width: 480px) {
     .wrapper { max-width: 100%; }
     .simulasi-table table { min-width: 240px; }
+}
+
+/* ===== Mode Otomatis dari Sistem ===== */
+@media (prefers-color-scheme: dark) {
+    body:not(.light-mode) {
+        background: linear-gradient(135deg, #1b1d23, #121316);
+        color: #e0e0e0;
+    }
 }
